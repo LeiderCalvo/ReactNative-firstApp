@@ -1,62 +1,40 @@
 import React from 'react';
+import { observable } from 'mobx';
+import { observer } from 'mobx-react/native';
 import { StyleSheet, Text, View, Image,Button} from 'react-native';
 import { NativeRouter, Route, Link} from "react-router-native";
+import store from '../../stores/store';
 
+@observer export default class DocView extends React.Component {
 
-export default class DocView extends React.Component {
+    @observable test = 'hola';
 
     constructor(props){
         super(props);
-        this.state = {
-            blocks: [
-                {
-                    id: 0,
-                    type: 'text',
-                    text: 'lorem ipsum id dolor'
-                },
-                {
-                    id: 1,
-                    type: 'img',
-                    url: 'https://images-na.ssl-images-amazon.com/images/I/61c9-XT0uFL._SY879_.jpg'
-                }
-            ],
-        };
-
        this.addText = this.addText.bind(this);
        this.addImg = this.addImg.bind(this);
     }
 
     addText(){
-        this.setState((prevState) =>{
-            return {
-                blocks: [ ...prevState.blocks, {
-                    id: prevState.blocks.length,
-                    type: 'text',
-                    text: 'hola' + Math.random()
-                }]
-            }
-        });
+        store.docs.addText('hola' + Math.random());
     }
 
     addImg(){
-        this.setState((prevState) =>{
-            return {
-                blocks: [ ...prevState.blocks, {
-                    id: prevState.blocks.length,
-                    type: 'img',
-                    url: 'http://as01.epimg.net/epik/imagenes/2018/04/28/portada/1524913221_572475_1524913364_noticia_normal.jpg'
-                }]
-            }
-        });
+        store.docs.addImage('http://as01.epimg.net/epik/imagenes/2018/04/28/portada/1524913221_572475_1524913364_noticia_normal.jpg', Math.round(Math.random()*100 +50));
     }
 
     render() {
         let { id } = this.props.match.params;
+
+        if(store.docs.selected===null || id != store.docs.selected.id){
+            store.docs.setSelectedById(id);
+        }
+        let doc = store.docs.selected;
         return (
             <View style={{margin: 30}}>
-                <Text>Doc view {id}</Text>
-                {this.state.blocks && this.state.blocks.map((block)=>{
-                    return block.type == 'text' ? <Text key={block.id}>{block.text}</Text> : <Image key={block.id} style={{ height: 150 }} source={{uri: block.url}}/>
+                <Text>Doc view {doc.id}</Text>
+                {doc.blocks && doc.blocks.map((block)=>{
+                    return block.type == 'text' ? <Text key={block.id}>{block.text}</Text> : <Image key={block.id} style={{ height: block.height || 100 }} source={{uri: block.url}}/>
                 })}
 
                 <View>
