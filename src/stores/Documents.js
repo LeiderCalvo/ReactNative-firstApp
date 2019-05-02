@@ -24,9 +24,9 @@ export class Documents{
     };
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
-
     this.db = firebase.firestore();  
 
+    /*
     this.db.collection("users").add({
         first: "Ada",
         last: "Lovelace",
@@ -38,6 +38,25 @@ export class Documents{
     .catch(function(error) {
         console.error("Error adding document: ", error);
     });
+*/
+
+    this.db.collection("documents").where("owner", "==", "X")
+    .get()
+    .then((querySnapshot) => {
+        querySnapshot.forEach((doc)=> {
+            // doc.data() is never undefined for query doc snapshots
+            console.log(doc.id, " => ", doc.data());
+            let temp = {
+                ...doc.data(),
+                id: doc.id
+            };
+            this.list.push(temp);
+
+        });
+    })
+    .catch((error)=> {
+        console.log("Error getting documents: ", error);
+    }); 
 
     }
 
