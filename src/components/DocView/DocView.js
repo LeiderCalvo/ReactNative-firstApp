@@ -1,7 +1,7 @@
 import React from 'react';
 import { observable } from 'mobx';
 import { observer } from 'mobx-react/native';
-import { StyleSheet, Text, View, Image,Button} from 'react-native';
+import { StyleSheet, Text, View, Image,Button, BackHandler} from 'react-native';
 import { NativeRouter, Route, Link} from "react-router-native";
 import store from '../../stores/store';
 
@@ -13,9 +13,10 @@ import store from '../../stores/store';
         super(props);
        this.addText = this.addText.bind(this);
        this.addImg = this.addImg.bind(this);
+       this.handleBackPress = this.handleBackPress.bind(this);
     }
 
-    addText(){
+    addText(){ 
         store.docs.addText('hola' + Math.random());
     }
 
@@ -32,7 +33,7 @@ import store from '../../stores/store';
         let doc = store.docs.selected;
         return (
             <View style={{margin: 30}}>
-                <Text>Doc view {doc.id}</Text>
+                <Text>Doc view {id}</Text>
                 {doc.blocks && doc.blocks.map((block)=>{
                     return block.type == 'text' ? <Text key={block.id}>{block.text}</Text> : <Image key={block.id} style={{ height: block.height || 100 }} source={{uri: block.url}}/>
                 })}
@@ -43,5 +44,19 @@ import store from '../../stores/store';
                 </View>
             </View>
         );
+    }
+
+    componentDidMount(){
+        BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
+    }
+
+    componentWillUnmount(){
+        BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
+    }
+
+    handleBackPress(){
+        this.props.history.goBack();
+        //this.props.history.push('/');
+        return true;
     }
 }
